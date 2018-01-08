@@ -45,7 +45,7 @@ const compiler = webpack(compilerConfig);
 compiler.run((error, stats) => {
   // if a fatal error occurred then bail out early
   if (error) {
-    console.log(error.red);
+    console.log(error.bold.red);
     return 1;
   }
 

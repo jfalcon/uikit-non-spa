@@ -16,14 +16,12 @@ import path from 'path';        // path utilities provided by Node
 import { getPages, isProdMode, NODE_PROD, NODE_DEV } from './utility'; // useful utility functions
 import { config } from '../package.json';                              // configuration info
 
-const DIR_DIST = config.directories.output;
-const FILE_DEFAULT = 'index';
 const HTTP_HOST = 'http://localhost';
 const HTTP_PORT = 8080;
-const PATH_DIST = path.resolve(__dirname, '..', DIR_DIST);
+const PATH_DIST = path.resolve(__dirname, '..', config.directories.output);
 
-const fileName = (process.argv[2] || '').toLowerCase();
-console.log(`Serving ${(fileName || FILE_DEFAULT)}...`.bold.green);
+const fileName = (process.argv[2] || config.defaults.filename || '').trim().toLowerCase();
+console.log(`Serving ${fileName}...`.bold.green);
 
 const server = express();
 
@@ -36,12 +34,13 @@ if (isProdMode()) {
     res.sendFile(path.join(PATH_DIST, `${fileName}.html`));
   });
 } else {
-  let compiler = webpack(config);
+  // TODO: ensure this is set correctly
+  const compiler = webpack(compilerConfig);
 
   // we have to filter through webpack in development mode
   const middleware = require('webpack-dev-middleware')(compiler, {
-    logLevel: 'silent',                  // don't clutter up the console with a wall of text
-    publicPath: config.output.publicPath // specified in the webpack configuration
+    logLevel: 'silent',                          // don't clutter up the console with a wall of text
+    publicPath: compilerConfig.output.publicPath // specified in the webpack configuration
   });
 
   // tell express to run webpack before doing anything
